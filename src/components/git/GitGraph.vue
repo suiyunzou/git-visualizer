@@ -55,6 +55,7 @@
             <p><strong>提交信息：</strong> {{ selectedNode.message }}</p>
             <p><strong>作者：</strong> {{ selectedNode.author }}</p>
             <p><strong>日期：</strong> {{ formatDate(selectedNode.date) }}</p>
+            <p><strong>分支：</strong> {{ selectedNode.branch }}</p>
           </template>
           <template v-else-if="selectedNode.type === 'branch'">
             <p><strong>分支名：</strong> {{ selectedNode.name }}</p>
@@ -79,6 +80,14 @@ const zoom = ref(1)
 const selectedNode = ref(null)
 const nodes = ref([])
 const links = ref([])
+const branches = ref(['main']) // 当前存在的分支
+const currentBranch = ref('main') // 当前活动分支
+const branchColors = {
+  'main': '#4caf50',
+  'feature': '#2196f3',
+  'hotfix': '#f44336',
+  'release': '#ff9800'
+}
 
 // D3 相关变量
 let simulation = null
@@ -141,6 +150,7 @@ function createInitialState() {
     message: '初始提交',
     author: 'System',
     date: new Date(),
+    branch: 'main'
   }
   
   const mainBranch = {
@@ -154,6 +164,7 @@ function createInitialState() {
   links.value.push({
     source: mainBranch.id,
     target: initialCommit.id,
+    branch: 'main'
   })
 
   updateSimulation()
@@ -166,8 +177,12 @@ function updateGraph() {
     .selectAll('line')
     .data(links.value)
     .join('line')
-    .attr('stroke', '#999')
-    .attr('stroke-width', 2)
+    .attr('stroke', d => {
+      const branchType = d.branch.split('/')[0]
+      return d.isMergeLink ? '#9c27b0' : (branchColors[branchType] || branchColors.feature)
+    })
+    .attr('stroke-width', d => d.isMergeLink ? 1 : 2)
+    .attr('stroke-dasharray', d => d.isMergeLink ? '5,5' : null)
     .attr('x1', d => d.source.x)
     .attr('y1', d => d.source.y)
     .attr('x2', d => d.target.x)
@@ -178,8 +193,10 @@ function updateGraph() {
     .selectAll('circle')
     .data(nodes.value)
     .join('circle')
-    .attr('r', d => d.type === 'commit' ? 8 : 10)
+    .attr('r', d => d.type === 'commit' ? (d.isMergeCommit ? 10 : 8) : 10)
     .attr('fill', d => getNodeColor(d))
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2)
     .attr('cx', d => d.x)
     .attr('cy', d => d.y)
     .on('click', (event, d) => selectNode(d))
@@ -194,6 +211,7 @@ function updateGraph() {
     .attr('x', d => d.x + 15)
     .attr('y', d => d.y + 5)
     .attr('font-size', '12px')
+    .attr('fill', d => d.type === 'commit' ? getNodeColor(d) : '#666')
 }
 
 // 节点拖拽行为
@@ -230,19 +248,21 @@ function createCommit() {
     message: '新的提交',
     author: 'User',
     date: new Date(),
+    branch: currentBranch.value
   }
+
+  // 找到当前分支的最新提交
+  const latestCommit = nodes.value
+    .filter(n => n.type === 'commit' && n.branch === currentBranch.value)
+    .sort((a, b) => b.date - a.date)[0]
 
   nodes.value.push(newCommit)
   
-  // 连接到最近的提交
-  const latestCommit = nodes.value
-    .filter(n => n.type === 'commit')
-    .sort((a, b) => b.date - a.date)[1]
-
   if (latestCommit) {
     links.value.push({
       source: newCommit.id,
       target: latestCommit.id,
+      branch: currentBranch.value
     })
   }
 
@@ -252,36 +272,107 @@ function createCommit() {
 
 // 创建新分支
 function createBranch() {
-  const branchName = `feature-${Math.floor(Math.random() * 1000)}`
-  const newBranch = {
-    id: `branch-${Date.now()}`,
-    type: 'branch',
-    name: branchName,
-    latestCommit: null,
+  // 生成分支名称，带有类型前缀
+  const branchTypes = ['feature', 'hotfix', 'release']
+  const randomType = branchTypes[Math.floor(Math.random() * branchTypes.length)]
+  const branchName = `${randomType}/${Math.floor(Math.random() * 1000)}`
+  
+  if (branches.value.includes(branchName)) {
+    ElMessage.warning('分支名称已存在')
+    return
   }
 
-  const latestCommit = nodes.value
-    .filter(n => n.type === 'commit')
+  // 获取当前分支的最新提交作为新分支的起点
+  const sourceCommit = nodes.value
+    .filter(n => n.type === 'commit' && n.branch === currentBranch.value)
     .sort((a, b) => b.date - a.date)[0]
 
-  if (latestCommit) {
-    newBranch.latestCommit = latestCommit.hash
-    nodes.value.push(newBranch)
-    links.value.push({
-      source: newBranch.id,
-      target: latestCommit.id,
-    })
-    updateSimulation()
-    ElMessage.success(`创建分支 ${branchName} 成功`)
-  } else {
+  if (!sourceCommit) {
     ElMessage.warning('需要至少一个提交才能创建分支')
+    return
   }
+
+  branches.value.push(branchName)
+  currentBranch.value = branchName // 切换到新分支
+
+  // 创建分支的第一个提交
+  const branchCommit = {
+    id: `commit-${Date.now()}`,
+    type: 'commit',
+    hash: Math.random().toString(36).substring(2, 10),
+    message: `创建分支 ${branchName}`,
+    author: 'User',
+    date: new Date(),
+    branch: branchName
+  }
+
+  nodes.value.push(branchCommit)
+  links.value.push({
+    source: branchCommit.id,
+    target: sourceCommit.id,
+    branch: branchName
+  })
+
+  updateSimulation()
+  ElMessage.success(`创建并切换到分支 ${branchName}`)
 }
 
 // 合并分支
 function mergeBranches() {
-  // 简化的合并逻辑
-  ElMessage.info('合并功能正在开发中...')
+  if (currentBranch.value === 'main') {
+    ElMessage.warning('请先切换到要合并的特性分支')
+    return
+  }
+
+  // 获取当前分支的最新提交
+  const sourceBranchLatestCommit = nodes.value
+    .filter(n => n.type === 'commit' && n.branch === currentBranch.value)
+    .sort((a, b) => b.date - a.date)[0]
+
+  // 获取主分支的最新提交
+  const mainBranchLatestCommit = nodes.value
+    .filter(n => n.type === 'commit' && n.branch === 'main')
+    .sort((a, b) => b.date - a.date)[0]
+
+  if (!sourceBranchLatestCommit || !mainBranchLatestCommit) {
+    ElMessage.warning('无法找到要合并的提交')
+    return
+  }
+
+  // 创建合并提交
+  const mergeCommit = {
+    id: `commit-${Date.now()}`,
+    type: 'commit',
+    hash: Math.random().toString(36).substring(2, 10),
+    message: `合并分支 ${currentBranch.value} 到 main`,
+    author: 'User',
+    date: new Date(),
+    branch: 'main',
+    isMergeCommit: true
+  }
+
+  nodes.value.push(mergeCommit)
+  
+  // 添加两个连接，表示合并
+  links.value.push(
+    {
+      source: mergeCommit.id,
+      target: mainBranchLatestCommit.id,
+      branch: 'main'
+    },
+    {
+      source: mergeCommit.id,
+      target: sourceBranchLatestCommit.id,
+      branch: currentBranch.value,
+      isMergeLink: true
+    }
+  )
+
+  // 切换回主分支
+  currentBranch.value = 'main'
+  
+  updateSimulation()
+  ElMessage.success('分支合并成功')
 }
 
 // 更新模拟器
@@ -306,11 +397,11 @@ function selectNode(node) {
 
 // 工具函数
 function getNodeColor(node) {
-  switch (node.type) {
-    case 'commit': return '#2196f3'
-    case 'branch': return '#4caf50'
-    default: return '#999'
+  if (node.type === 'commit') {
+    const branchType = node.branch.split('/')[0]
+    return node.isMergeCommit ? '#9c27b0' : (branchColors[branchType] || branchColors.feature)
   }
+  return '#999'
 }
 
 function getNodeLabel(node) {
