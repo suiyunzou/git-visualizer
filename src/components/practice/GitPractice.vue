@@ -220,17 +220,21 @@ const createFile = (fileName) => {
 const addOutput = (content, type = 'output') => {
   if (content === undefined || content === null || content === '') return
   
-  if (typeof content === 'string') {
-    const lines = content.split('\n')
-    lines.forEach(line => {
-      if (line.trim()) {
-        terminalOutput.value.push({ content: line, type })
-      }
-    })
+  // 如果不是命令类型，就添加到最后一个命令的输出中
+  if (type !== 'command' && terminalOutput.value.length > 0) {
+    const lastLine = terminalOutput.value[terminalOutput.value.length - 1]
+    if (lastLine.type === 'command') {
+      terminalOutput.value.push({ content, type })
+    } else {
+      // 如果最后一行不是命令，就追加到当前输出
+      lastLine.content += '\n' + content
+    }
   } else {
+    // 如果是命令或者没有前面的输出，就直接添加新行
     terminalOutput.value.push({ content, type })
   }
-
+  
+  // 滚动到底部
   nextTick(() => {
     if (terminalBody.value) {
       terminalBody.value.scrollTop = terminalBody.value.scrollHeight
@@ -476,111 +480,99 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .git-practice {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 1rem 2rem;
+  padding-bottom: 0;
+  
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--text-primary);
+  }
 
   .description {
+    margin: 0.5rem 0 1rem;
     color: var(--text-secondary);
-    margin-bottom: 24px;
   }
 
   .practice-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .terminal-section {
     .terminal {
-      background: #1e1e1e;
-      border-radius: 6px;
+      background: #1e1e1e !important;
+      border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
       .terminal-header {
-        background: #323232;
-        padding: 8px 16px;
+        background: #323232 !important;
+        padding: 0.5rem 1rem;
         display: flex;
         align-items: center;
-
+        
         .terminal-buttons {
           display: flex;
-          gap: 6px;
-          margin-right: 16px;
+          gap: 0.5rem;
+          margin-right: 1rem;
 
           span {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-
-            &.close { background: #ff5f56; }
-            &.minimize { background: #ffbd2e; }
-            &.maximize { background: #27c93f; }
+            display: inline-block;
           }
+
+          .close { background: #ff5f56; }
+          .minimize { background: #ffbd2e; }
+          .maximize { background: #27c93f; }
         }
 
         .terminal-title {
           color: #fff;
-          font-size: 14px;
+          font-size: 0.9rem;
         }
       }
 
       .terminal-body {
-        height: 500px;
-        padding: 16px;
+        padding: 1rem;
+        height: 360px; 
         overflow-y: auto;
-        font-family: monospace;
         color: #fff;
-        cursor: text;
+        font-size: 14px; 
 
         .terminal-line {
-          margin-bottom: 8px;
+          margin-bottom: 0.25rem; 
+          font-family: monospace;
           white-space: pre-wrap;
           word-break: break-all;
+        }
 
-          .prompt {
-            color: #98c379;
-            margin-right: 8px;
-          }
+        .prompt {
+          color: #98c379;
+          margin-right: 0.5rem;
+        }
 
-          .command {
-            color: #fff;
-          }
+        .command {
+          color: #fff;
+        }
 
-          .output {
-            color: #abb2bf;
-          }
+        .error {
+          color: #e06c75;
+        }
 
-          .error {
-            color: #e06c75;
-          }
-
-          .warning {
-            color: #e5c07b;
-          }
-
-          .success {
-            color: #98c379;
-          }
-
-          .file {
-            color: #61afef;
-          }
-
-          .staged {
-            color: #98c379;
-          }
+        .output {
+          color: #abb2bf;
         }
 
         .terminal-input-line {
           display: flex;
           align-items: center;
-
-          .prompt {
-            color: #98c379;
-            margin-right: 8px;
-          }
+          margin-top: 0.25rem; 
 
           input {
             flex: 1;
@@ -588,12 +580,16 @@ onMounted(() => {
             border: none;
             color: #fff;
             font-family: monospace;
-            font-size: inherit;
-            padding: 0;
-            margin: 0;
-            outline: none;
+            font-size: 14px;
+            padding: 0.25rem;
+            margin-left: 0.5rem;
 
-            &:disabled {
+            &:focus {
+              outline: none;
+            }
+
+            &::placeholder {
+              color: #abb2bf;
               opacity: 0.5;
             }
           }
@@ -604,57 +600,109 @@ onMounted(() => {
 
   .visualization-section {
     h3 {
-      margin-bottom: 20px;
+      margin: 0 0 1rem;
       color: var(--text-primary);
     }
 
     .git-status {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
 
       .status-item {
-        padding: 16px;
-        background: var(--background-light);
-        border-radius: var(--border-radius);
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 8px;
-        opacity: 0.5;
-        transition: var(--transition-quick);
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: var(--background-light);
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
 
         &.active {
-          opacity: 1;
           background: var(--primary-color);
           color: white;
+
+          .el-icon {
+            color: white;
+          }
         }
 
         .el-icon {
-          font-size: 24px;
+          font-size: 1.5rem;
+          color: var(--text-secondary);
         }
       }
     }
 
     .file-tree {
       background: var(--background-light);
-      padding: 16px;
-      border-radius: var(--border-radius);
+      padding: 1rem;
+      border-radius: 8px;
 
       h4 {
-        margin-bottom: 16px;
+        margin: 0 0 1rem;
         color: var(--text-primary);
       }
     }
   }
 }
 
-@media (max-width: 768px) {
-  .git-practice {
-    .practice-container {
-      grid-template-columns: 1fr;
+// 添加底部样式
+:deep(.app-footer) {
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.5rem;
+  
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+
+    .footer-section {
+      h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        color: var(--text-primary);
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-bottom: 0.25rem;
+          
+          a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            
+            &:hover {
+              color: var(--primary-color);
+            }
+          }
+        }
+      }
     }
+  }
+
+  .copyright {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
   }
 }
 </style>
