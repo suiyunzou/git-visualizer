@@ -18,7 +18,7 @@ const router = createRouter({
     {
       path: '/tutorial',
       name: 'Tutorial',
-      component: () => import('./components/tutorial/TutorialView.vue')
+      component: () => import('./components/tutorial/GitTutorial.vue')
     },
     {
       path: '/practice',
