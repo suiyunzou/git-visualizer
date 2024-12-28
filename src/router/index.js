@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import GitVisualizerHome from '../components/git/GitVisualizerHome.vue'
 import GitTutorial from '../components/tutorial/GitTutorial.vue'
+import GitPractice from '../components/practice/GitPractice.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: '/tutorial',
     name: 'Tutorial',
     component: GitTutorial
+  },
+  {
+    path: '/practice',
+    name: 'Practice',
+    component: GitPractice
   }
 ]
 

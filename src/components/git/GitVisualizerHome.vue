@@ -1,4 +1,4 @@
-<template>
+touch /src/test.md   # 从根目录开始的绝对路径<template>
   <app-layout>
     <home-hero />
     <div class="git-visualizer">
