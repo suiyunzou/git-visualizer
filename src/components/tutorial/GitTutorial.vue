@@ -406,6 +406,9 @@ export default {
 
   .tutorial-tabs {
     margin-bottom: 40px;
+    :deep(.el-tabs__content) {
+      background: var(--card-background);
+    }
   }
 
   .tutorial-section {
@@ -429,6 +432,8 @@ export default {
 
   .concept-card {
     margin-bottom: 16px;
+    background: var(--card-background);
+    border-color: var(--border-color);
 
     .card-header {
       display: flex;
@@ -443,6 +448,7 @@ export default {
     padding: 8px 12px;
     border-radius: 4px;
     margin: 8px 0;
+    color: var(--text-primary);
   }
 
   .branch-types {

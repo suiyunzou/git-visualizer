@@ -25,14 +25,6 @@
         </nav>
 
         <div class="right-section">
-          <div class="search-box">
-            <el-input
-              placeholder="搜索..."
-              prefix-icon="Search"
-              size="small"
-              class="search-input"
-            />
-          </div>
           <el-switch
             v-model="isDarkMode"
             active-text="暗色"
@@ -67,9 +59,9 @@
         <div class="footer-section">
           <h3>资源</h3>
           <ul>
-            <li><a href="#" target="_blank">Git 文档</a></li>
-            <li><a href="#" target="_blank">常见问题</a></li>
-            <li><a href="#" target="_blank">关于我们</a></li>
+            <li><a href="https://git-scm.com/doc" target="_blank">Git 文档</a></li>
+            <li><a href="https://stackoverflow.com/questions/tagged/git" target="_blank">常见问题</a></li>
+            <li><a href="https://github.com/suiyunzou/git-visualizer" target="_blank">关于我们</a></li>
           </ul>
         </div>
       </div>
@@ -118,16 +110,19 @@ const toggleTheme = (value) => {
     height: 100%;
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-      color: var(--text-primary);
-      font-size: 1.25rem;
-      font-weight: 600;
+      .logo-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
 
-      img {
-        height: 32px;
+        img {
+          height: 24px;
+          width: 24px;
+        }
       }
     }
 
@@ -160,42 +155,6 @@ const toggleTheme = (value) => {
       display: flex;
       align-items: center;
       gap: 1rem;
-
-      .search-box {
-        position: relative;
-        width: 200px;
-
-        input {
-          width: 100%;
-          padding: 0.5rem 1rem;
-          padding-left: 2.5rem;
-          border: 1px solid var(--border-color);
-          border-radius: 4px;
-          background: var(--background-light);
-          color: var(--text-primary);
-          font-size: 0.875rem;
-          transition: all 0.3s ease;
-
-          &:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: var(--background-white);
-          }
-
-          &::placeholder {
-            color: var(--text-secondary);
-          }
-        }
-
-        .el-icon {
-          position: absolute;
-          left: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--text-secondary);
-          font-size: 1rem;
-        }
-      }
 
       .theme-switch {
         display: flex;

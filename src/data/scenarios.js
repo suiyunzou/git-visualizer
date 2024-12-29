@@ -8,8 +8,23 @@ export default [
         id: 1,
         title: '初始化仓库',
         description: '创建一个新的 Git 仓库并添加初始文件',
-        hint: '使用 git init 命令初始化仓库',
-        allowedCommands: ['git init', 'touch', 'echo'],
+        hint: '首先需要初始化一个Git仓库，这是进行版本控制的第一步',
+        commandExamples: [
+          {
+            command: 'git init',
+            description: '在当前目录初始化Git仓库'
+          },
+          {
+            command: 'git status',
+            description: '查看仓库当前状态'
+          }
+        ],
+        tips: [
+          '初始化后会创建一个隐藏的 .git 目录',
+          '可以使用 ls -la 命令查看隐藏文件',
+          '初始化后记得检查仓库状态'
+        ],
+        allowedCommands: ['git init', 'git status', 'ls'],
         expectedState: {
           hasGitInit: true
         }

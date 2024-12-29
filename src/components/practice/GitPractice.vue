@@ -500,150 +500,167 @@ onMounted(() => {
     gap: 2rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
-  }
 
-  .terminal-section {
-    .terminal {
-      background: #1e1e1e !important;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .practice-header {
+      background: var(--card-background);
+    }
 
-      .terminal-header {
-        background: #323232 !important;
-        padding: 0.5rem 1rem;
-        display: flex;
-        align-items: center;
-        
-        .terminal-buttons {
-          display: flex;
-          gap: 0.5rem;
-          margin-right: 1rem;
+    .terminal-section {
+      .terminal {
+        background: #1e1e1e !important;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-          span {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-          }
-
-          .close { background: #ff5f56; }
-          .minimize { background: #ffbd2e; }
-          .maximize { background: #27c93f; }
-        }
-
-        .terminal-title {
-          color: #fff;
-          font-size: 0.9rem;
-        }
-      }
-
-      .terminal-body {
-        padding: 1rem;
-        height: 360px; 
-        overflow-y: auto;
-        color: #fff;
-        font-size: 14px; 
-
-        .terminal-line {
-          margin-bottom: 0.25rem; 
-          font-family: monospace;
-          white-space: pre-wrap;
-          word-break: break-all;
-        }
-
-        .prompt {
-          color: #98c379;
-          margin-right: 0.5rem;
-        }
-
-        .command {
-          color: #fff;
-        }
-
-        .error {
-          color: #e06c75;
-        }
-
-        .output {
-          color: #abb2bf;
-        }
-
-        .terminal-input-line {
+        .terminal-header {
+          background: #323232 !important;
+          padding: 0.5rem 1rem;
           display: flex;
           align-items: center;
-          margin-top: 0.25rem; 
+          
+          .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
 
-          input {
-            flex: 1;
-            background: transparent;
-            border: none;
+            span {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              display: inline-block;
+            }
+
+            .close { background: #ff5f56; }
+            .minimize { background: #ffbd2e; }
+            .maximize { background: #27c93f; }
+          }
+
+          .terminal-title {
             color: #fff;
+            font-size: 0.9rem;
+          }
+        }
+
+        .terminal-body {
+          padding: 1rem;
+          height: 360px; 
+          overflow-y: auto;
+          color: #fff;
+          font-size: 14px; 
+
+          .terminal-line {
+            margin-bottom: 0.25rem; 
             font-family: monospace;
-            font-size: 14px;
-            padding: 0.25rem;
-            margin-left: 0.5rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+          }
 
-            &:focus {
-              outline: none;
-            }
+          .prompt {
+            color: #98c379;
+            margin-right: 0.5rem;
+          }
 
-            &::placeholder {
-              color: #abb2bf;
-              opacity: 0.5;
+          .command {
+            color: #fff;
+          }
+
+          .error {
+            color: #e06c75;
+          }
+
+          .output {
+            color: #abb2bf;
+          }
+
+          .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 0.25rem; 
+
+            input {
+              flex: 1;
+              background: transparent;
+              border: none;
+              color: #fff;
+              font-family: monospace;
+              font-size: 14px;
+              padding: 0.25rem;
+              margin-left: 0.5rem;
+
+              &:focus {
+                outline: none;
+              }
+
+              &::placeholder {
+                color: #abb2bf;
+                opacity: 0.5;
+              }
             }
           }
         }
       }
     }
-  }
 
-  .visualization-section {
-    h3 {
-      margin: 0 0 1rem;
-      color: var(--text-primary);
-    }
+    .visualization-section {
+      background: var(--card-background);
 
-    .git-status {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-
-      .status-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 8px;
-        background: var(--background-light);
-        color: var(--text-secondary);
-        transition: all 0.3s ease;
-
-        &.active {
-          background: var(--primary-color);
-          color: white;
-
-          .el-icon {
-            color: white;
-          }
-        }
-
-        .el-icon {
-          font-size: 1.5rem;
-          color: var(--text-secondary);
-        }
-      }
-    }
-
-    .file-tree {
-      background: var(--background-light);
-      padding: 1rem;
-      border-radius: 8px;
-
-      h4 {
+      h3 {
         margin: 0 0 1rem;
         color: var(--text-primary);
+      }
+
+      .git-status {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+
+        .status-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1rem;
+          border-radius: 8px;
+          background: var(--background-light);
+          color: var(--text-secondary);
+          transition: all 0.3s ease;
+
+          &.active {
+            background: var(--primary-color);
+            color: white;
+
+            .el-icon {
+              color: white;
+            }
+          }
+
+          .el-icon {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+          }
+        }
+      }
+
+      .file-tree {
+        background: var(--background-secondary);
+        padding: 1rem;
+        border-radius: 8px;
+
+        h4 {
+          margin: 0 0 1rem;
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    .help-section {
+      background: var(--card-background);
+
+      .help-category {
+        code {
+          background: var(--background-secondary);
+          color: var(--text-primary);
+        }
       }
     }
   }

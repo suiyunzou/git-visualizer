@@ -93,6 +93,8 @@ const getTagType = (scenario) => {
   .scenario-card {
     cursor: pointer;
     transition: all 0.3s ease;
+    background: var(--card-background);
+    border-color: var(--border-color);
 
     &:hover {
       transform: translateY(-5px);
@@ -121,7 +123,7 @@ const getTagType = (scenario) => {
       .scenario-steps {
         margin-top: 20px;
         padding-top: 16px;
-        border-top: 1px solid var(--el-border-color-lighter);
+        border-top: 1px solid var(--border-color);
       }
     }
   }
