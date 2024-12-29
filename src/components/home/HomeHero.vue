@@ -1,4 +1,4 @@
-`<template>
+<template>
   <section class="hero">
     <div class="hero-content">
       <h1 class="hero-title">
@@ -42,7 +42,10 @@ const startLearning = () => {
 }
 
 const watchDemo = () => {
-  // 实现演示视频逻辑
+  router.push({ 
+    path: '/practice',
+    query: { mode: 'demo' }
+  })
 }
 
 onMounted(() => {
@@ -201,4 +204,4 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
-</style>`
+</style>

@@ -80,48 +80,62 @@
 </template>
 
 <script>
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
 export default {
   name: 'GitScene',
-  data() {
-    return {
-      currentStep: 1,
-      currentTask: '创建一个新的 Git 仓库并添加初始文件',
-      currentCommand: '',
-      isProcessing: false,
-      terminalOutput: [
-        { type: 'output', content: '欢迎使用 Git 命令练习器！' },
-        { type: 'output', content: '输入 help 查看可用命令。' }
-      ],
-      gitState: {
-        isRepo: false,
-        hasChanges: false,
-        hasStaged: false,
-        hasCommits: false
-      }
+  setup() {
+    const route = useRoute()
+    const mode = ref('practice')
+    const currentStep = ref(1)
+    const currentTask = ref('创建一个新的 Git 仓库并添加初始文件')
+    const currentCommand = ref('')
+    const isProcessing = ref(false)
+    const terminalOutput = ref([
+      { type: 'output', content: '欢迎使用 Git 命令练习器！' },
+      { type: 'output', content: '输入 help 查看可用命令。' }
+    ])
+    const gitState = ref({
+      isRepo: false,
+      hasChanges: false,
+      hasStaged: false,
+      hasCommits: false
+    })
+
+    // 监听路由查询参数变化
+    watch(
+      () => route.query.mode,
+      (newMode) => {
+        mode.value = newMode === 'demo' ? 'demo' : 'practice'
+      },
+      { immediate: true }
+    )
+
+    const focusInput = () => {
+      const commandInput = document.querySelector('input')
+      commandInput?.focus()
     }
-  },
-  methods: {
-    focusInput() {
-      this.$refs.commandInput?.focus()
-    },
-    async executeCommand() {
-      if (!this.currentCommand.trim() || this.isProcessing) return
+
+    const executeCommand = async () => {
+      if (!currentCommand.value.trim() || isProcessing.value) return
       
-      this.isProcessing = true
-      this.terminalOutput.push({ type: 'command', content: this.currentCommand })
+      isProcessing.value = true
+      terminalOutput.value.push({ type: 'command', content: currentCommand.value })
       
       // 处理命令
-      await this.processCommand(this.currentCommand)
+      await processCommand(currentCommand.value)
       
-      this.currentCommand = ''
-      this.isProcessing = false
-      this.focusInput()
-    },
-    async processCommand(command) {
+      currentCommand.value = ''
+      isProcessing.value = false
+      focusInput()
+    }
+
+    const processCommand = async (command) => {
       const cmd = command.toLowerCase().trim()
       
       if (cmd === 'help') {
-        this.terminalOutput.push({
+        terminalOutput.value.push({
           type: 'output',
           content: `可用的 Git 命令：
   git init              - 初始化仓库
@@ -134,50 +148,41 @@ export default {
 
       // 根据不同命令更新状态
       if (cmd === 'git init') {
-        this.gitState.isRepo = true
-        this.terminalOutput.push({ type: 'output', content: '初始化空的 Git 仓库' })
+        gitState.value.isRepo = true
+        terminalOutput.value.push({ type: 'output', content: '初始化空的 Git 仓库' })
       } else if (cmd.startsWith('git add')) {
-        if (!this.gitState.isRepo) {
-          this.terminalOutput.push({ type: 'error', content: '错误：不是 Git 仓库' })
+        if (!gitState.value.isRepo) {
+          terminalOutput.value.push({ type: 'error', content: '错误：不是 Git 仓库' })
           return
         }
-        this.gitState.hasStaged = true
-        this.terminalOutput.push({ type: 'output', content: '已添加到暂存区' })
+        gitState.value.hasStaged = true
+        terminalOutput.value.push({ type: 'output', content: '已添加到暂存区' })
       } else if (cmd.startsWith('git commit')) {
-        if (!this.gitState.hasStaged) {
-          this.terminalOutput.push({ type: 'error', content: '错误：没有要提交的更改' })
+        if (!gitState.value.hasStaged) {
+          terminalOutput.value.push({ type: 'error', content: '错误：没有要提交的更改' })
           return
         }
-        this.gitState.hasCommits = true
-        this.gitState.hasStaged = false
-        this.terminalOutput.push({ type: 'output', content: '已提交更改' })
+        gitState.value.hasCommits = true
+        gitState.value.hasStaged = false
+        terminalOutput.value.push({ type: 'output', content: '已提交更改' })
       }
-    },
-    resetState() {
-      this.currentStep = 1;
-      this.currentTask = '创建一个新的 Git 仓库并添加初始文件';
-      this.currentCommand = '';
-      this.isProcessing = false;
-      this.terminalOutput = [
-        { type: 'output', content: '欢迎使用 Git 命令练习器！' },
-        { type: 'output', content: '输入 help 查看可用命令。' }
-      ];
-      this.gitState = {
-        isRepo: false,
-        hasChanges: false,
-        hasStaged: false,
-        hasCommits: false
-      };
     }
-  },
-  mounted() {
-    this.focusInput();
-    // 添加点击事件监听器
-    this.$el.addEventListener('click', this.resetState);
-  },
-  beforeDestroy() {
-    // 移除事件监听器以防内存泄漏
-    this.$el.removeEventListener('click', this.resetState);
+
+    onMounted(() => {
+      focusInput()
+    })
+
+    return {
+      mode,
+      currentStep,
+      currentTask,
+      currentCommand,
+      isProcessing,
+      terminalOutput,
+      gitState,
+      focusInput,
+      executeCommand
+    }
   }
 }
 </script>
